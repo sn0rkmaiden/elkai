@@ -43,7 +43,7 @@ static PyObject *PySolveProblem(PyObject *self, PyObject *args)
         gb_free_string(problem);
         return 0;
     }
-    cout << "running solve";
+    
     ElkaiSolveProblem(params, problem, &tourSize, &tourPtr);
 
     if(PyErr_Occurred() != 0) {
