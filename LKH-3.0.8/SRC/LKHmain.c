@@ -1,6 +1,7 @@
 #include "LKH.h"
 #include "Genetic.h"
 #include "BIT.h"
+#include <stdio.h>
 
 static int *ReadableTour = 0;
 static int ReadableTourSize = 0;
@@ -108,6 +109,9 @@ void ElkaiSolveProblem(gbString params, gbString problem, int *tourSize, int **t
         Runs = 0;
     }
 
+    printf("Optimum is %d \n", Optimum);
+    printf("BestCost is %d \n", BestCost);
+
     /* Find a specified number (Runs) of local optima */
 
     for (Run = 1; Run <= Runs; Run++) {
@@ -118,7 +122,9 @@ void ElkaiSolveProblem(gbString params, gbString problem, int *tourSize, int **t
             Run--;
             break;
         }
-        Cost = FindTour();      /* using the Lin-Kernighan heuristic */
+        Cost = FindTour();  
+        printf("Cost by FindTour() is %d \n", Cost);   
+           /* using the Lin-Kernighan heuristic */
         if (MaxPopulationSize > 1 && !TSPTW_Makespan) {
             /* Genetic algorithm */
             int i;
@@ -163,6 +169,7 @@ void ElkaiSolveProblem(gbString params, gbString problem, int *tourSize, int **t
         }
         Time = fabs(GetTime() - LastTime);
         UpdateStatistics(Cost, Time);
+        printf("%d \n", Cost);        
         if (StopAtOptimum && MaxPopulationSize >= 1) {
             if (ProblemType != CCVRP && ProblemType != TRP &&
                 ProblemType != MLP &&

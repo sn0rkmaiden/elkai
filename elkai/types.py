@@ -17,7 +17,7 @@ class DistanceMatrix(object):
             raise ValueError("runs must be a positive integer")
         
         dimension = len(self.distances)
-        print('solve_tsp called modified')
+        print('solve_tsp called')
         if dimension < 3:
             raise ValueError("dimension must be at least 3")
 

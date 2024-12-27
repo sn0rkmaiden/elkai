@@ -1,4 +1,5 @@
 #include "LKH.h"
+#include <stdio.h>
 
 /*
  * After the candidate set has been created the FindTour function is called
@@ -15,11 +16,38 @@
  * The original candidate set is re-established at exit from FindTour.
  */
 
+static int *costHistory = 0;
+static int costHistorySize = 0;
+static int costHistoryAllocated = 100;
+
+static void costHistoryPut(double x) {
+    if(costHistory == 0) {
+        costHistory = (double *) malloc(sizeof(double) * costHistoryAllocated);
+    }
+    if(costHistorySize == costHistoryAllocated) {
+        costHistoryAllocated *= 2;
+        costHistory = (double *) realloc(costHistory, sizeof(double) * costHistoryAllocated);
+    }
+    costHistory[costHistorySize] = x;
+    costHistorySize++;
+}
+
+static void costHistoryClear() {
+    costHistorySize = 0;
+    costHistoryAllocated = 100;
+    if(costHistory != 0) {
+        free(costHistory);
+        costHistory = 0;
+    }
+}
+
 static void SwapCandidateSets();
 static GainType OrdinalTourCost;
 
 GainType FindTour()
 {
+    costHistoryClear();
+
     GainType Cost;
     Node *t;
     int i;
@@ -67,6 +95,8 @@ GainType FindTour()
             (InitialTourAlgorithm != SOP_ALG || Trial > 1))
             SOP_RepairTour();
         Cost = LinKernighan();
+        costHistoryPut(Cost);
+        printf("inside FindTour() Cost is %d \n", Cost);
         if (GetTime() - EntryTime < TimeLimit &&
             GetTime() - StartTime < TotalTimeLimit) {
             if (FirstNode->BestSuc && !TSPTW_Makespan) {
