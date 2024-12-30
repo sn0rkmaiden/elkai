@@ -68,7 +68,7 @@ void TheTour(int *Tour, GainType Cost)
 extern void ClearLines();
 extern void WriteLine(gbString str);
 
-void ElkaiSolveProblem(gbString params, gbString problem, int *tourSize, int **tourPtr) {
+void ElkaiSolveProblem(gbString params, gbString problem, int *tourSize, int **tourPtr, int *historySize, int **history) {
     ClearLines();
     WriteLine(params);
 
@@ -107,10 +107,7 @@ void ElkaiSolveProblem(gbString params, gbString problem, int *tourSize, int **t
         BestPenalty = CurrentPenalty = Penalty ? Penalty() : 0;
         TheTour(BestTour, BestCost);
         Runs = 0;
-    }
-
-    printf("Optimum is %d \n", Optimum);
-    printf("BestCost is %d \n", BestCost);
+    } 
 
     /* Find a specified number (Runs) of local optima */
 
@@ -122,8 +119,10 @@ void ElkaiSolveProblem(gbString params, gbString problem, int *tourSize, int **t
             Run--;
             break;
         }
-        Cost = FindTour();  
-        printf("Cost by FindTour() is %d \n", Cost);   
+        Cost = FindTour();                
+        *history = getHistory();     
+        *historySize = getHistorySize();       
+            
            /* using the Lin-Kernighan heuristic */
         if (MaxPopulationSize > 1 && !TSPTW_Makespan) {
             /* Genetic algorithm */
@@ -168,8 +167,7 @@ void ElkaiSolveProblem(gbString params, gbString problem, int *tourSize, int **t
             }
         }
         Time = fabs(GetTime() - LastTime);
-        UpdateStatistics(Cost, Time);
-        printf("%d \n", Cost);        
+        UpdateStatistics(Cost, Time);              
         if (StopAtOptimum && MaxPopulationSize >= 1) {
             if (ProblemType != CCVRP && ProblemType != TRP &&
                 ProblemType != MLP &&
@@ -380,6 +378,8 @@ int main(int argc, char * argv[])
     printf("This is a test.");
     int tourSize;
     int *tour;
+    int historySize;
+    int *history;
     gbString params = gb_make_string("RUNS = 1\nPROBLEM_FILE = :stdin:\n");
     gbString problem = gb_make_string(
         "TYPE : TSP\nDIMENSION : 4\nEDGE_WEIGHT_TYPE : EUC_2D\nNODE_COORD_SECTION\n"
@@ -389,7 +389,7 @@ int main(int argc, char * argv[])
         "4 11.0 -3.0\n"
         "EOF\n"
         );
-    ElkaiSolveProblem(params, problem, &tourSize, &tour);
+    ElkaiSolveProblem(params, problem, &tourSize, &tour, &historySize, &history);
     gb_free_string(params);
     gb_free_string(problem);
     for(int i = 0; i < tourSize; i++) {
@@ -406,7 +406,7 @@ int main(int argc, char * argv[])
         "4 11.0 -3.0\n"
         "EOF\n"
         );
-    ElkaiSolveProblem(params, problem, &tourSize, &tour);
+    ElkaiSolveProblem(params, problem, &tourSize, &tour, &historySize, &history);
     gb_free_string(params);
     gb_free_string(problem);
     for(int i = 0; i < tourSize; i++) {

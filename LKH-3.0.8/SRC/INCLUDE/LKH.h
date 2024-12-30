@@ -476,6 +476,9 @@ int Excludable(Node * ta, Node * tb);
 void Exclude(Node * ta, Node * tb);
 int FixedOrCommonCandidates(Node * N);
 GainType FindTour(void);
+int * getHistory();
+int getHistorySize();
+
 void Flip(Node * t1, Node * t2, Node * t3);
 void Flip_SL(Node * t1, Node * t2, Node * t3);
 void Flip_SSL(Node * t1, Node * t2, Node * t3);

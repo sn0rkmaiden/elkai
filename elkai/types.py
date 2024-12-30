@@ -11,13 +11,12 @@ class DistanceMatrix(object):
         
         self.distances = distances
 
-    def solve_tsp(self, runs=10) -> List[int]:
+    def solve_tsp(self, runs=10, returnHistory = False) -> List[int]:
         """Returns a list of indices that represent the TSP tour. You can adjust solver iterations with the runs parameter."""
         if not isinstance(runs, int) or runs < 1:
             raise ValueError("runs must be a positive integer")
         
-        dimension = len(self.distances)
-        print('solve_tsp called')
+        dimension = len(self.distances)        
         if dimension < 3:
             raise ValueError("dimension must be at least 3")
 
@@ -31,14 +30,19 @@ class DistanceMatrix(object):
         for row in self.distances:
             problem += " ".join(map(str, row)) + "\n"
 
-        solution: List[int] = _elkai.solve_problem(params, problem)
-
+        # solution: List[int] = _elkai.solve_problem(params, problem)
+        t = _elkai.solve_problem(params, problem)
+        solution = t[0]
+        history = t[1]        
         # output is one-indexed and doesn't contain the departure to first city by default
         # let's add the departure and fix indices
         solution.append(solution[0])
         solution = [idx - 1 for idx in solution]
 
-        return solution
+        if returnHistory:
+            return (solution, history)
+        else:
+            return solution
 
 
 class Coordinates2D(object):

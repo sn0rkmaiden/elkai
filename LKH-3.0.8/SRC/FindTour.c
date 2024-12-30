@@ -41,6 +41,14 @@ static void costHistoryClear() {
     }
 }
 
+int *getHistory(){
+    return costHistory;
+}
+
+int getHistorySize(){
+    return costHistorySize;
+}
+
 static void SwapCandidateSets();
 static GainType OrdinalTourCost;
 
@@ -96,7 +104,7 @@ GainType FindTour()
             SOP_RepairTour();
         Cost = LinKernighan();
         costHistoryPut(Cost);
-        printf("inside FindTour() Cost is %d \n", Cost);
+        // printf("inside FindTour() Cost is %d \n", Cost);
         if (GetTime() - EntryTime < TimeLimit &&
             GetTime() - StartTime < TotalTimeLimit) {
             if (FirstNode->BestSuc && !TSPTW_Makespan) {
@@ -181,8 +189,8 @@ GainType FindTour()
     if (Trial > MaxTrials)
         Trial = MaxTrials;
     ResetCandidateSet();
-    CurrentPenalty = BetterPenalty;
-    return BetterCost;
+    CurrentPenalty = BetterPenalty;    
+    return BetterCost;    
 }
 
 /*

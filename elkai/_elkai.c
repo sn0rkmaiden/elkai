@@ -2,11 +2,12 @@
 #include "math.h"
 #include "gb_string.h"
 #include "setjmp.h"
+// #include "LKH.h"
 
 // These are implemented in the LKH-3.0.8/SRC directory.
 
 extern int ElkaiDeprecatedSolve(int dimension, float *weights, int *tour, int runs);
-extern void ElkaiSolveProblem(gbString params, gbString problem, int *tourSize, int **tourPtr);
+extern void ElkaiSolveProblem(gbString params, gbString problem, int *tourSize, int **tourPtr, int *historySize, int **history);
 extern jmp_buf ErrorJumpBuffer;
 
 // Our copy of LKH is highly modified and does not correspond to the upstream. In the future,
@@ -35,6 +36,8 @@ static PyObject *PySolveProblem(PyObject *self, PyObject *args)
 
     int tourSize = 0;
     int *tourPtr;
+    int *finalHistory = 0;
+    int finalHistorySize = 0;
 
     int jmpRes;
     jmpRes = setjmp(ErrorJumpBuffer);
@@ -44,10 +47,19 @@ static PyObject *PySolveProblem(PyObject *self, PyObject *args)
         return 0;
     }
     
-    ElkaiSolveProblem(params, problem, &tourSize, &tourPtr);
+    ElkaiSolveProblem(params, problem, &tourSize, &tourPtr, &finalHistorySize, &finalHistory);            
 
     if(PyErr_Occurred() != 0) {
         return 0;
+    }
+
+    
+    PyObject *historyList = PyList_New(finalHistorySize);
+    int j = 0;
+    for (j = 0; j < finalHistorySize; j++)
+    {
+        PyObject *historyElement = PyLong_FromLong((long)(finalHistory[j]));
+        PyList_SetItem(historyList, j, historyElement);
     }
 
     PyObject *list = PyList_New(tourSize);
@@ -59,9 +71,9 @@ static PyObject *PySolveProblem(PyObject *self, PyObject *args)
     }
 
     gb_free_string(params);
-    gb_free_string(problem);
+    gb_free_string(problem);    
 
-    return list;
+    return PyTuple_Pack(2, list, historyList);;
 }
 
 static PyObject *PyDeprecatedSolve(PyObject *self, PyObject *args)
@@ -132,6 +144,7 @@ static PyObject *PyDeprecatedSolve(PyObject *self, PyObject *args)
 static PyMethodDef funcs[] = {
     {"_deprecated_solve", (PyCFunction) PyDeprecatedSolve, METH_VARARGS, "_deprecated_solve(matrix, runs): Solves an ATSP problem."},
     {"solve_problem", (PyCFunction) PySolveProblem, METH_VARARGS, "solve_problem(params: str, problem: str): Solve a LKH problem."},
+    // {"get_history", (PyCFunction) PyGetHistory, METH_VARARGS, "get history"}
     {NULL}
 };
 
